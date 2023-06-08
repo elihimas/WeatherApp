@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.elihimas.weather.data.model.WeatherData
+import com.elihimas.weather.data.model.Forecast
+import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.ActivityMainBinding
 import com.elihimas.weatherapp.ui.adapters.ForecastItemsAdapter
 import com.elihimas.weatherapp.ui.viewmodels.ViewModelFactory
@@ -42,8 +43,30 @@ class MainActivity : ComponentActivity() {
 
     private fun render(uiState: UiState) {
         when (uiState) {
+            is UiState.RetryError -> renderRetryError()
+            is UiState.FinalError -> renderFinalError()
             UiState.Loading -> renderLoading()
             is UiState.Success -> renderSuccess(uiState.data)
+        }
+    }
+
+    private fun renderRetryError() {
+        with(binding) {
+            itemsRecycler.hide()
+
+            progress.show()
+            tvStatus.show()
+            tvStatus.setText(R.string.load_forecast_retry_error)
+        }
+    }
+
+    private fun renderFinalError() {
+        with(binding) {
+            progress.hide()
+            itemsRecycler.hide()
+
+            tvStatus.show()
+            tvStatus.setText(R.string.load_forecast_final_error)
         }
     }
 
@@ -51,21 +74,21 @@ class MainActivity : ComponentActivity() {
         with(binding) {
             progress.show()
 
-            tvCity.hide()
+            tvStatus.hide()
             itemsRecycler.hide()
         }
     }
 
-    private fun renderSuccess(weatherData: WeatherData) {
+    private fun renderSuccess(forecast: Forecast) {
         with(binding) {
             progress.hide()
 
-            tvCity.show()
+            tvStatus.show()
             itemsRecycler.show()
 
-            tvCity.text = weatherData.city
+            tvStatus.setText(R.string.load_forecast_success)
         }
-        adapter.items = weatherData.forecastItems
+        adapter.items = forecast.forecastItems
     }
 }
 

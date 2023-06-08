@@ -1,3 +1,3 @@
 package com.elihimas.weather.data.model
 
-data class ForecastItem (val temperature:Double)
+class ForecastItem(val temperature: Double)

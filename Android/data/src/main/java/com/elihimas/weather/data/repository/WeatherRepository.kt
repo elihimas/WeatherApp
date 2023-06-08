@@ -1,8 +1,8 @@
 package com.elihimas.weather.data.repository
 
-import com.elihimas.weather.data.model.WeatherData
+import com.elihimas.weather.data.model.Forecast
 import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
-    fun loadData(): Flow<WeatherData>
+    fun loadForecast(): Flow<Forecast>
 }

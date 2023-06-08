@@ -3,9 +3,17 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def apikeyPropertiesFile = rootProject.file("apikeys.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
 android {
     namespace 'com.elihimas.weather.data'
     compileSdk 33
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         minSdk 26
@@ -13,6 +21,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField("String", "baseUrl", "\"https://api.openweathermap.org/data/2.5/\"")
+        buildConfigField("String", "apiKey", apikeyProperties['access_key'])
     }
 
     buildTypes {
@@ -32,9 +43,13 @@ android {
 
 dependencies {
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1'
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.21'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
