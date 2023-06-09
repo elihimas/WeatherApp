@@ -3,4 +3,8 @@
     <dimen name="splash_title_text_size">40sp</dimen>
     <dimen name="forecast_item_padding">25dp</dimen>
     <dimen name="city_text_size">40sp</dimen>
+
+    <dimen name="forecast_item_day_size">13sp</dimen>
+    <dimen name="forecast_item_temperature_size">23sp</dimen>
+    <dimen name="small_padding">2dp</dimen>
 </resources>

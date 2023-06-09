@@ -7,10 +7,10 @@ import retrofit2.http.Query
 
 interface WeatherAPI {
 
-    @GET("weather?units=metric&cnt=7")
+    @GET("weather?units=metric")
     suspend fun getWeather(@Query("q") query: String): GetWeatherResponse
 
-    @GET("forecast?units=metric&cnt=7")
+    @GET("forecast?units=metric")
     suspend fun getForecast(@Query("q") query: String): GetForecastResponse
 
 }

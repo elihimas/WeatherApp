@@ -6,5 +6,6 @@ data class GetForecastResponse(
     @SerializedName("cod")
     val statusCode: Int,
     @SerializedName("list")
-    val forecastList: List<RemoteForecastItem>
+    val forecastList: List<RemoteForecastItem>,
+    val city: RemoteCity
 )

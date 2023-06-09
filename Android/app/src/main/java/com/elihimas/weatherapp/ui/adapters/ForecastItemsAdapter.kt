@@ -7,16 +7,20 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.elihimas.weather.data.model.ForecastItem
 import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.RowForecastItemBinding
+import java.time.format.DateTimeFormatter
 
 class ForecastItemsAdapter : RecyclerView.Adapter<ForecastItemsAdapter.Holder>() {
 
     class Holder(private val binding: RowForecastItemBinding) : ViewHolder(binding.root) {
+
         fun bind(item: ForecastItem) {
             val temperatureText =
                 binding.root.resources.getString(R.string.row_item_temperature, item.temperature)
-            binding.tvTemperature.text = temperatureText
-        }
+            val dayText = formatter.format(item.date)
 
+            binding.tvTemperature.text = temperatureText
+            binding.tvDay.text = dayText
+        }
     }
 
     var items = listOf<ForecastItem>()
@@ -39,4 +43,8 @@ class ForecastItemsAdapter : RecyclerView.Adapter<ForecastItemsAdapter.Holder>()
         holder.bind(item)
     }
 
+    companion object {
+        // TODO: use local pattern
+        val formatter = DateTimeFormatter.ofPattern("dd/MM")
+    }
 }

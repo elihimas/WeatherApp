@@ -20,6 +20,7 @@ class MainViewModel(
     val uiState =
         weatherRepository
             .loadForecast()
+            .map(::trimEntries)
             .map(Forecast::toUiState)
             .retryWhen { cause, attempt ->
                 Timber.e(cause)
@@ -46,5 +47,12 @@ class MainViewModel(
                 SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
                 UiState.Loading
             )
+
+    fun trimEntries(forecast: Forecast): Forecast {
+        val trimmedItems = forecast.forecastItems.distinctBy {forecastItem ->
+            forecastItem.date.dayOfMonth
+        }
+        return forecast.copy(forecastItems = trimmedItems)
+    }
 
 }
