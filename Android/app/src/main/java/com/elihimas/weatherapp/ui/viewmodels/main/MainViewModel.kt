@@ -8,14 +8,17 @@ import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weather.data.repository.WeatherRepository
 import com.elihimas.weatherapp.models.MainData
 import com.elihimas.weatherapp.util.addRetry
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val citiesRepository: CitiesRepository
 ) : ViewModel() {

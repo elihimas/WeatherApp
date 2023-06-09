@@ -8,19 +8,20 @@ import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.ActivityMainBinding
 import com.elihimas.weatherapp.models.MainData
 import com.elihimas.weatherapp.ui.adapters.ForecastItemsAdapter
-import com.elihimas.weatherapp.ui.viewmodels.ViewModelFactory
 import com.elihimas.weatherapp.ui.viewmodels.main.MainViewModel
 import com.elihimas.weatherapp.ui.viewmodels.main.UiState
 import com.elihimas.weatherapp.util.hide
 import com.elihimas.weatherapp.util.show
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val adapter by lazy { ForecastItemsAdapter() }
 
-    private val viewModel by viewModels<MainViewModel> { ViewModelFactory(application) }
+    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
