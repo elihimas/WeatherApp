@@ -2,6 +2,8 @@ package com.elihimas.weatherapp.ui.viewmodels.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.elihimas.weather.citiesrepository.CitiesRepository
+import com.elihimas.weather.citiesrepository.City
 import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weather.data.repository.WeatherRepository
 import com.elihimas.weatherapp.models.MainData
@@ -11,10 +13,32 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val citiesRepository: CitiesRepository
 ) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            citiesRepository.allCities().collect { cities ->
+                if (cities.isEmpty()) {
+                    showEmptyCities()
+                } else {
+                    loadCityWeatherAndForecast(cities.first())
+                }
+            }
+        }
+    }
+
+    private fun showEmptyCities() {
+
+    }
+
+    private fun loadCityWeatherAndForecast(city: City) {
+
+    }
 
     private fun createForecastFlow() = weatherRepository
         .loadForecast()

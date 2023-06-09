@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.flow
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-class WeatherRepositoryImpl(private val api: WeatherAPI) : WeatherRepository {
+class WeatherRepositoryImpl(
+    private val api: WeatherAPI
+) : WeatherRepository {
 
     override fun loadForecast(): Flow<Forecast> =
         flow {

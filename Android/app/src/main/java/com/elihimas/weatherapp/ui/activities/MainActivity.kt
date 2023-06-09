@@ -17,11 +17,10 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val adapter by lazy { ForecastItemsAdapter() }
 
-    private val viewModel by viewModels<MainViewModel> { ViewModelFactory() }
+    private val viewModel by viewModels<MainViewModel> { ViewModelFactory(application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
