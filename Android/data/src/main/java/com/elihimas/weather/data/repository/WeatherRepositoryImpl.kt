@@ -2,6 +2,7 @@ package com.elihimas.weather.data.repository
 
 import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weather.data.model.ForecastItem
+import com.elihimas.weather.data.model.Weather
 import com.elihimas.weather.data.repository.remote.WeatherAPI
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -31,5 +32,14 @@ class WeatherRepositoryImpl(private val api: WeatherAPI) : WeatherRepository {
             val forecast = Forecast(items)
 
             emit(forecast)
+        }
+
+    override fun loadWeather(): Flow<Weather> =
+        flow {
+            val weatherResponse = api.getWeather("Recife")
+            val city = weatherResponse.cityName
+            val temperature = weatherResponse.mainWeatherData.temperature
+
+            emit(Weather(city, temperature))
         }
 }

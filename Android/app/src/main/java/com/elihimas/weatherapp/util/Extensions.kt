@@ -1,11 +1,11 @@
 package com.elihimas.weatherapp.util
 
 import android.view.View
-import com.elihimas.weather.data.model.Forecast
-import com.elihimas.weatherapp.ui.viewmodels.main.UiState
-
-
-fun Forecast.toUiState(): UiState = UiState.Success(this)
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.retryWhen
+import java.io.IOException
 
 fun View.show() {
     visibility = View.VISIBLE
@@ -14,3 +14,24 @@ fun View.show() {
 fun View.hide() {
     visibility = View.GONE
 }
+
+fun <T> Flow<T>.addRetry(
+    createRetryError: () -> T,
+    createFinalError: () -> T,
+) = retryWhen { cause, attempt ->
+    val shouldRetry = cause is IOException && attempt < 3
+
+    if (shouldRetry) {
+        if (attempt == 0L) {
+            delay(200)
+        } else {
+            delay(1_000 * attempt)
+        }
+        emit(createRetryError())
+    }
+
+    shouldRetry
+}
+    .catch {
+        emit(createFinalError())
+    }

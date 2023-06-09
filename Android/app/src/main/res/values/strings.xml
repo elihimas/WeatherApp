@@ -3,7 +3,8 @@
 
     <string name="row_item_temperature">%.2f ºC</string>
 
-    <string name="load_forecast_success">Data loaded successfuly</string>
+    <string name="load_forecast_success">Data loaded successfully</string>
+    <string name="load_forecast_loading">Loading</string>
     <string name="load_forecast_final_error">Error loading forecast :(</string>
-    <string name="load_forecast_retry_error">Error - tentando novamente</string>
+    <string name="load_forecast_retry_error">Error - try again</string>
 </resources>

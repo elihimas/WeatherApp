@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.ActivityMainBinding
+import com.elihimas.weatherapp.models.MainData
 import com.elihimas.weatherapp.ui.adapters.ForecastItemsAdapter
 import com.elihimas.weatherapp.ui.viewmodels.ViewModelFactory
 import com.elihimas.weatherapp.ui.viewmodels.main.MainViewModel
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
     private fun initViewModel() {
         lifecycleScope.launch {
-            viewModel.uiState.collect(::render)
+            viewModel.createUiState().collect(::render)
         }
     }
 
@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
     private fun renderRetryError() {
         with(binding) {
+            cityContainer.hide()
             itemsRecycler.hide()
 
             progress.show()
@@ -63,9 +64,9 @@ class MainActivity : ComponentActivity() {
     private fun renderFinalError() {
         with(binding) {
             progress.hide()
+            cityContainer.hide()
             itemsRecycler.hide()
 
-            tvStatus.show()
             tvStatus.setText(R.string.load_forecast_final_error)
         }
     }
@@ -74,21 +75,28 @@ class MainActivity : ComponentActivity() {
         with(binding) {
             progress.show()
 
-            tvStatus.hide()
+            cityContainer.hide()
             itemsRecycler.hide()
+
+            tvStatus.setText(R.string.load_forecast_loading)
         }
     }
 
-    private fun renderSuccess(forecast: Forecast) {
+    private fun renderSuccess(mainData: MainData) {
         with(binding) {
             progress.hide()
 
-            tvStatus.show()
+            cityContainer.show()
             itemsRecycler.show()
 
             tvStatus.setText(R.string.load_forecast_success)
+            tvCity.text = mainData.weather.city
+
+            val temperature = getString(R.string.row_item_temperature, mainData.weather.temperature)
+            tvCityTemperature.text = temperature
         }
-        adapter.items = forecast.forecastItems
+
+        adapter.items = mainData.forecast.forecastItems
     }
 }
 
