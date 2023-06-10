@@ -10,6 +10,7 @@ import com.elihimas.weatherapp.models.MainData
 import com.elihimas.weatherapp.util.addRetry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -23,11 +24,13 @@ class MainViewModel @Inject constructor(
     private val citiesRepository: CitiesRepository
 ) : ViewModel() {
 
+    val uiState = MutableStateFlow<UiState>(UiState.Loading)
+
     init {
         viewModelScope.launch {
             citiesRepository.allCities().collect { cities ->
                 if (cities.isEmpty()) {
-                    showEmptyCities()
+                    sendAddCity()
                 } else {
                     loadCityWeatherAndForecast(cities.first())
                 }
@@ -35,12 +38,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun showEmptyCities() {
-
+    private fun sendAddCity() {
+        uiState.value = UiState.NoCitiesRegistered
     }
 
     private fun loadCityWeatherAndForecast(city: City) {
-
+        uiState.value = UiState.Loading
+        // TODO: load city data
     }
 
     private fun createForecastFlow() = weatherRepository
@@ -73,8 +77,9 @@ class MainViewModel @Inject constructor(
             WeatherWrapper(status = ResultStatus.Loading)
         )
 
-    //TODO: implement a more insistent retry approach (if some of the network calls fail, retry)
-    fun createUiState(): Flow<UiState> =
+    // TODO: implement a more insistent retry approach (if some of the network calls fail, retry)
+    // TODO: use the forecast and weather flows to feed the ui state that is currently being useg
+    private fun createUiState(): Flow<UiState> =
         combine(
             createForecastFlow(),
             createWeatherFlow()

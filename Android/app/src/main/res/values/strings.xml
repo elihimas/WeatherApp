@@ -7,4 +7,5 @@
     <string name="load_forecast_loading">Loading</string>
     <string name="load_forecast_final_error">Error loading forecast :(</string>
     <string name="load_forecast_retry_error">Error - try again</string>
+    <string name="no_city_registered_message">No city added. Please add a city to view weather info.</string>
 </resources>
