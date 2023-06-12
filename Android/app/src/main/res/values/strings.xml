@@ -3,9 +3,20 @@
 
     <string name="row_item_temperature">%.2f ºC</string>
 
-    <string name="load_forecast_success">Data loaded successfully</string>
-    <string name="load_forecast_loading">Loading</string>
-    <string name="load_forecast_final_error">Error loading forecast :(</string>
-    <string name="load_forecast_retry_error">Error - try again</string>
-    <string name="no_city_registered_message">No city added. Please add a city to view weather info.</string>
+    <!-- main activity-->
+    <string name="status_load_forecast_success">Data loaded successfully</string>
+    <string name="status_load_forecast_loading">Loading</string>
+    <string name="status_load_forecast_final_error">Error loading forecast :(</string>
+    <string name="status_load_forecast_retry_error">Error - try again</string>
+    <string name="status_add_city">add city</string>
+
+    <!-- add city activity -->
+    <string name="title_add_city">Add City</string>
+    <string name="message_no_city_registered">No city added. Please add a city to view weather info.</string>
+    <string name="message_city_added">City added</string>
+    <string name="message_city_not_found">City not found :|</string>
+    <string name="hint_city_name">City name</string>
+    <string name="bt_add_city">add city</string>
+    <string name="button_find_city">find city</string>
+    <string name="description_add_city">Add city</string>
 </resources>

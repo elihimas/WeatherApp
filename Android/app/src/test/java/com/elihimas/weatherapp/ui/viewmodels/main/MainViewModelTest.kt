@@ -1,11 +1,14 @@
 package com.elihimas.weatherapp.ui.viewmodels.main
 
 import com.elihimas.weather.citiesrepository.CitiesRepository
+import com.elihimas.weather.citiesrepository.City
 import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weather.data.model.ForecastItem
+import com.elihimas.weather.data.model.LoadResult
 import com.elihimas.weather.data.model.Weather
 import com.elihimas.weather.data.repository.WeatherRepository
 import com.elihimas.weatherapp.models.MainData
+import com.elihimas.weatherapp.ui.main.MainViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -14,6 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -47,23 +51,27 @@ class MainViewModelTest {
     @Test
     fun `when repository send weather info then should display the forecast`() = runTest {
         // Arrange
+        val city = "Recife"
         val expectedForecastItems = createExpectedForecasts()
-        val expectedWeather = Weather("Recife", 27.0)
+        val expectedWeather = LoadResult.SuccessResult(Weather(city, 27.0))
         val expectedForecast = Forecast(expectedForecastItems)
         val weatherRepository = mockk<WeatherRepository>()
-        every { weatherRepository.loadForecast() } returns flow { emit(expectedForecast) }
-        every { weatherRepository.loadWeather() } returns flow { emit(expectedWeather) }
+        every { weatherRepository.loadForecast(city) } returns flow { emit(expectedForecast) }
+        every { weatherRepository.loadWeather(city) } returns flow { emit(expectedWeather) }
         val citiesRepository = mockk<CitiesRepository>()
-        coEvery { citiesRepository.allCities() } returns emptyFlow()
+        coEvery { citiesRepository.allCities() } returns flowOf(listOf(City(city)))
 
         val viewModel = MainViewModel(weatherRepository, citiesRepository)
 
         // Act
-        val states = viewModel.createUiState().take(2).toList()
+        val states = viewModel.uiState.take(2).toList()
 
         // Verify
         assertEquals(UiState.Loading, states[0])
-        assertEquals(UiState.Success(MainData(expectedWeather, expectedForecast)), states[1])
+        assertEquals(
+            UiState.Success(MainData(expectedWeather.resultData, expectedForecast)),
+            states[1]
+        )
     }
 
     private fun createExpectedForecasts() = listOf(
@@ -85,17 +93,18 @@ class MainViewModelTest {
     fun `when repository continues to fail then should retry and then display the error`() =
         runTest {
             // Arrange
+            val city = "Recife"
             val weatherRepository = mockk<WeatherRepository>()
             val exceptionalFlow = flow<Forecast> { throw IOException() }
-            every { weatherRepository.loadForecast() } returns exceptionalFlow
-            every { weatherRepository.loadWeather() } returns emptyFlow()
+            every { weatherRepository.loadForecast(city) } returns exceptionalFlow
+            every { weatherRepository.loadWeather(city) } returns emptyFlow()
             val citiesRepository = mockk<CitiesRepository>()
-            coEvery { citiesRepository.allCities() } returns emptyFlow()
+            coEvery { citiesRepository.allCities() } returns flowOf(listOf(City(city)))
 
             val viewModel = MainViewModel(weatherRepository, citiesRepository)
 
             // Act
-            val states = viewModel.createUiState().take(3).toList()
+            val states = viewModel.uiState.take(3).toList()
 
             // Verify
             assertEquals(UiState.Loading, states[0])
@@ -107,8 +116,9 @@ class MainViewModelTest {
     fun `when repository fails once and recovers then should retry and then display the forecast`() =
         runTest {
             // Arrange
+            val city = "Recife"
             val expectedForecastItems = createExpectedForecasts()
-            val expectedWeather = Weather("Recife", 27.0)
+            val expectedWeather = LoadResult.SuccessResult(Weather("Recife", 27.0))
             val expectedForecast = Forecast(expectedForecastItems)
             val weatherRepository = mockk<WeatherRepository>()
             var count = 0
@@ -122,19 +132,22 @@ class MainViewModelTest {
                     emit(expectedForecast)
                 }
             }
-            every { weatherRepository.loadForecast() } returns exceptionalFlow
-            every { weatherRepository.loadWeather() } returns flow { emit(expectedWeather) }
+            every { weatherRepository.loadForecast(city) } returns exceptionalFlow
+            every { weatherRepository.loadWeather(city) } returns flow { emit(expectedWeather) }
             val citiesRepository = mockk<CitiesRepository>()
-            coEvery { citiesRepository.allCities() } returns emptyFlow()
+            coEvery { citiesRepository.allCities() } returns flowOf(listOf(City(city)))
 
             val viewModel = MainViewModel(weatherRepository, citiesRepository)
 
             // Act
-            val states = viewModel.createUiState().take(3).toList()
+            val states = viewModel.uiState.take(3).toList()
 
             // Verify
             assertEquals(UiState.Loading, states[0])
             assertEquals(UiState.RetryError, states[1])
-            assertEquals(UiState.Success(MainData(expectedWeather, expectedForecast)), states[2])
+            assertEquals(
+                UiState.Success(MainData(expectedWeather.resultData, expectedForecast)),
+                states[2]
+            )
         }
 }

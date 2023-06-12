@@ -1,15 +1,18 @@
-package com.elihimas.weatherapp.ui.activities
+package com.elihimas.weatherapp.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.ActivityMainBinding
 import com.elihimas.weatherapp.models.MainData
 import com.elihimas.weatherapp.ui.adapters.ForecastItemsAdapter
-import com.elihimas.weatherapp.ui.viewmodels.main.MainViewModel
+import com.elihimas.weatherapp.ui.addcity.AddCityActivity
 import com.elihimas.weatherapp.ui.viewmodels.main.UiState
 import com.elihimas.weatherapp.util.hide
 import com.elihimas.weatherapp.util.show
@@ -33,17 +36,25 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initViews() {
-        binding.itemsRecycler.adapter = adapter
+        with(binding) {
+            itemsRecycler.adapter = adapter
+            btAddCity.setOnClickListener {
+                viewModel.onAddClicked()
+                startActivity(Intent(this@MainActivity, AddCityActivity::class.java))
+            }
+        }
     }
 
     private fun initViewModel() {
         lifecycleScope.launch {
-            viewModel.uiState.collect(::render)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::render)
+            }
         }
     }
 
     private fun render(uiState: UiState) {
-        hideAll()
+        hideAllViews()
 
         when (uiState) {
             UiState.Loading -> renderLoading()
@@ -58,51 +69,53 @@ class MainActivity : ComponentActivity() {
         with(binding) {
             progress.show()
 
-            tvStatus.setText(R.string.load_forecast_loading)
+            tvStatus.setText(R.string.status_load_forecast_loading)
         }
     }
 
     private fun renderAddCity() {
         with(binding) {
             tvEmptyCitiesMessage.show()
+            tvStatus.setText(R.string.status_add_city)
         }
     }
 
     private fun renderRetryError() {
         with(binding) {
             progress.show()
-            tvStatus.show()
-            tvStatus.setText(R.string.load_forecast_retry_error)
+            tvStatus.setText(R.string.status_load_forecast_retry_error)
         }
     }
 
     private fun renderFinalError() {
         with(binding) {
-            tvStatus.setText(R.string.load_forecast_final_error)
+            tvStatus.setText(R.string.status_load_forecast_final_error)
         }
     }
 
     private fun renderSuccess(mainData: MainData) {
         with(binding) {
-            cityContainer.show()
+            titleContainer.show()
             itemsRecycler.show()
+            tvCityTemperature.show()
+            tvCity.show()
 
-            tvStatus.setText(R.string.load_forecast_success)
             tvCity.text = mainData.weather.city
-
             val temperature = getString(R.string.row_item_temperature, mainData.weather.temperature)
             tvCityTemperature.text = temperature
+
+            tvStatus.setText(R.string.status_load_forecast_success)
         }
 
         adapter.items = mainData.forecast.forecastItems
     }
 
-    private fun hideAll() {
+    private fun hideAllViews() {
         with(binding) {
             val allViews =
                 listOf(
                     progress,
-                    cityContainer,
+                    titleContainer,
                     tvCity,
                     tvCityTemperature,
                     itemsRecycler,

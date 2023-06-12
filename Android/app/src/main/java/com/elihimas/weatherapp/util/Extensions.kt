@@ -16,7 +16,7 @@ fun View.hide() {
 }
 
 fun <T> Flow<T>.addRetry(
-    createRetryError: () -> T,
+    createRetryError: (() -> T)? = null,
     createFinalError: () -> T,
 ) = retryWhen { cause, attempt ->
     val shouldRetry = cause is IOException && attempt < 3
@@ -27,7 +27,9 @@ fun <T> Flow<T>.addRetry(
         } else {
             delay(1_000 * attempt)
         }
-        emit(createRetryError())
+        createRetryError?.let { createRetryError ->
+            emit(createRetryError())
+        }
     }
 
     shouldRetry

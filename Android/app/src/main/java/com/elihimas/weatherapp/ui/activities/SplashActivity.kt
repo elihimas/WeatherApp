@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import com.elihimas.weatherapp.databinding.ActivitySplashBinding
+ import com.elihimas.weatherapp.ui.main.MainActivity
 
 class SplashActivity : ComponentActivity() {
 

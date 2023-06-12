@@ -1,15 +1,19 @@
-package com.elihimas.weatherapp.ui.viewmodels.main
+package com.elihimas.weatherapp.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elihimas.weather.citiesrepository.CitiesRepository
 import com.elihimas.weather.citiesrepository.City
 import com.elihimas.weather.data.model.Forecast
+import com.elihimas.weather.data.model.LoadResult
 import com.elihimas.weather.data.repository.WeatherRepository
 import com.elihimas.weatherapp.models.MainData
+import com.elihimas.weatherapp.ui.viewmodels.main.ForecastWrapper
+import com.elihimas.weatherapp.ui.viewmodels.main.ResultStatus
+import com.elihimas.weatherapp.ui.viewmodels.main.UiState
+import com.elihimas.weatherapp.ui.viewmodels.main.WeatherWrapper
 import com.elihimas.weatherapp.util.addRetry
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -44,11 +48,35 @@ class MainViewModel @Inject constructor(
 
     private fun loadCityWeatherAndForecast(city: City) {
         uiState.value = UiState.Loading
-        // TODO: load city data
+
+        // TODO: implement a more insistent retry approach (if some of the network calls fail, retry)
+        // TODO: use the forecast and weather flows to feed the ui state that is currently being useg
+        viewModelScope.launch {
+            combine(
+                createForecastFlow(city),
+                createWeatherFlow(city)
+            )
+            { forecastWrapper: ForecastWrapper, weatherWrapper: WeatherWrapper ->
+                val forecast = forecastWrapper.forecast
+                val weather = weatherWrapper.weather
+
+                if (forecast != null && weather != null) {
+                    UiState.Success(MainData(weather, forecast))
+                } else if (forecastWrapper.status == ResultStatus.RetryError || weatherWrapper.status == ResultStatus.RetryError) {
+                    UiState.RetryError
+                } else if (forecastWrapper.status == ResultStatus.FinalError || weatherWrapper.status == ResultStatus.FinalError) {
+                    UiState.FinalError
+                } else {
+                    UiState.Loading
+                }
+            }.collect { newState ->
+                uiState.value = newState
+            }
+        }
     }
 
-    private fun createForecastFlow() = weatherRepository
-        .loadForecast()
+    private fun createForecastFlow(city: City) = weatherRepository
+        .loadForecast(city.name)
         .map(::trimEntries)
         .map { forecast ->
             ForecastWrapper(forecast, ResultStatus.Success)
@@ -63,8 +91,14 @@ class MainViewModel @Inject constructor(
         )
 
 
-    private fun createWeatherFlow() = weatherRepository
-        .loadWeather()
+    private fun createWeatherFlow(city: City) = weatherRepository
+        .loadWeather(city.name)
+        .map {
+            when (it) {
+                LoadResult.NotFoundResult -> null
+                is LoadResult.SuccessResult -> it.resultData
+            }
+        }
         .map { weather ->
             WeatherWrapper(weather, ResultStatus.Success)
         }
@@ -77,36 +111,15 @@ class MainViewModel @Inject constructor(
             WeatherWrapper(status = ResultStatus.Loading)
         )
 
-    // TODO: implement a more insistent retry approach (if some of the network calls fail, retry)
-    // TODO: use the forecast and weather flows to feed the ui state that is currently being useg
-    private fun createUiState(): Flow<UiState> =
-        combine(
-            createForecastFlow(),
-            createWeatherFlow()
-        ) { forecastWrapper: ForecastWrapper, weatherWrapper: WeatherWrapper ->
-            val forecast = forecastWrapper.forecast
-            val weather = weatherWrapper.weather
-
-            return@combine if (forecast != null && weather != null) {
-                UiState.Success(MainData(weather, forecast))
-            } else if (forecastWrapper.status == ResultStatus.RetryError || weatherWrapper.status == ResultStatus.RetryError) {
-                UiState.RetryError
-            } else if (forecastWrapper.status == ResultStatus.FinalError || weatherWrapper.status == ResultStatus.FinalError) {
-                UiState.FinalError
-            } else {
-                UiState.Loading
-            }
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            UiState.Loading
-        )
-
     private fun trimEntries(forecast: Forecast): Forecast {
         val trimmedItems = forecast.forecastItems.distinctBy { forecastItem ->
             forecastItem.date.dayOfMonth
         }
         return forecast.copy(forecastItems = trimmedItems)
+    }
+
+    fun onAddClicked() {
+
     }
 
 }

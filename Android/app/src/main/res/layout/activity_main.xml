@@ -17,7 +17,7 @@
         tools:visibility="gone" />
 
     <View
-        android:id="@+id/cityContainer"
+        android:id="@+id/titleContainer"
         android:layout_width="match_parent"
         android:layout_height="@dimen/city_container_height"
         android:background="@color/purple_700"
@@ -27,22 +27,19 @@
 
     <TextView
         android:id="@+id/tvCity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textSize="@dimen/city_text_size"
-        app:layout_constraintBottom_toBottomOf="@id/cityContainer"
+        style="@style/TitleText"
+        app:layout_constraintBottom_toBottomOf="@id/titleContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cityContainer"
+        app:layout_constraintTop_toTopOf="@id/titleContainer"
         tools:text="Recife" />
 
     <TextView
         android:id="@+id/tvCityTemperature"
         style="@style/TextCityTemperature"
-         android:textColor="@color/white"
+        android:textColor="@color/white"
         android:textSize="@dimen/temperature_text_size"
-        app:layout_constraintBottom_toBottomOf="@id/cityContainer"
+        app:layout_constraintBottom_toBottomOf="@id/titleContainer"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="30 ºC" />
 
@@ -54,17 +51,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cityContainer"
+        app:layout_constraintTop_toBottomOf="@id/titleContainer"
         tools:listitem="@layout/row_forecast_item" />
 
     <TextView
         android:id="@+id/tvEmptyCitiesMessage"
-        style="@style/TextNoCityRegistered"
-        android:text="@string/no_city_registered_message"
+        style="@style/TextMainMessage"
+        android:text="@string/message_no_city_registered"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cityContainer"
+        app:layout_constraintTop_toBottomOf="@id/titleContainer"
         tools:visibility="gone" />
 
     <TextView
@@ -75,4 +72,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Loading" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btAddCity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/icon_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/description_add_city"
+        app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>
