@@ -39,7 +39,7 @@ class WeatherRepositoryImpl(
 
     override fun loadWeather(city: String): Flow<LoadResult<Weather>> = flow {
         try {
-            val weatherResponse = api.getWeather(city)
+            val weatherResponse = api.getWeather(city.trim())
 
             if (weatherResponse.statusCode == 200) {
                 val cityName = weatherResponse.cityName

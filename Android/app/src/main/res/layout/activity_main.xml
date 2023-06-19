@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/citiesPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/progress"
         android:layout_width="wrap_content"
@@ -16,43 +25,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="gone" />
 
-    <View
-        android:id="@+id/titleContainer"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/city_container_height"
-        android:background="@color/purple_700"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvCity"
-        style="@style/TitleText"
-        app:layout_constraintBottom_toBottomOf="@id/titleContainer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/titleContainer"
-        tools:text="Recife" />
-
-    <TextView
-        android:id="@+id/tvCityTemperature"
-        style="@style/TextCityTemperature"
-        android:textColor="@color/white"
-        android:textSize="@dimen/temperature_text_size"
-        app:layout_constraintBottom_toBottomOf="@id/titleContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="30 ºC" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/itemsRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleContainer"
-        tools:listitem="@layout/row_forecast_item" />
 
     <TextView
         android:id="@+id/tvEmptyCitiesMessage"
@@ -61,7 +33,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleContainer"
+        app:layout_constraintTop_toTopOf="parent"
         tools:visibility="gone" />
 
     <TextView
@@ -79,9 +51,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
+        android:contentDescription="@string/description_add_city"
         android:src="@drawable/icon_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/description_add_city"
         app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

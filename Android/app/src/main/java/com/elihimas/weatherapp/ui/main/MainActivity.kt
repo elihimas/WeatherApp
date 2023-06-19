@@ -3,15 +3,15 @@ package com.elihimas.weatherapp.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.elihimas.weather.citiesrepository.City
 import com.elihimas.weatherapp.R
 import com.elihimas.weatherapp.databinding.ActivityMainBinding
-import com.elihimas.weatherapp.models.MainData
-import com.elihimas.weatherapp.ui.adapters.ForecastItemsAdapter
+import com.elihimas.weatherapp.ui.adapters.CitiesAdapter
 import com.elihimas.weatherapp.ui.addcity.AddCityActivity
 import com.elihimas.weatherapp.ui.viewmodels.main.UiState
 import com.elihimas.weatherapp.util.hide
@@ -20,11 +20,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private val adapter by lazy { ForecastItemsAdapter() }
-
+    private val adapter by lazy { CitiesAdapter(this) }
     private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +36,8 @@ class MainActivity : ComponentActivity() {
 
     private fun initViews() {
         with(binding) {
-            itemsRecycler.adapter = adapter
+            citiesPager.adapter = adapter
+
             btAddCity.setOnClickListener {
                 viewModel.onAddClicked()
                 startActivity(Intent(this@MainActivity, AddCityActivity::class.java))
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
         when (uiState) {
             UiState.Loading -> renderLoading()
             is UiState.NoCitiesRegistered -> renderAddCity()
-            is UiState.Success -> renderSuccess(uiState.data)
+            is UiState.Success -> renderSuccess(uiState.cities)
             is UiState.RetryError -> renderRetryError()
             is UiState.FinalError -> renderFinalError()
         }
@@ -93,21 +93,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun renderSuccess(mainData: MainData) {
+    private fun renderSuccess(cities: List<City>) {
         with(binding) {
-            titleContainer.show()
-            itemsRecycler.show()
-            tvCityTemperature.show()
-            tvCity.show()
-
-            tvCity.text = mainData.weather.city
-            val temperature = getString(R.string.row_item_temperature, mainData.weather.temperature)
-            tvCityTemperature.text = temperature
-
             tvStatus.setText(R.string.status_load_forecast_success)
+            citiesPager.show()
         }
 
-        adapter.items = mainData.forecast.forecastItems
+        adapter.cities = cities
     }
 
     private fun hideAllViews() {
@@ -115,15 +107,11 @@ class MainActivity : ComponentActivity() {
             val allViews =
                 listOf(
                     progress,
-                    titleContainer,
-                    tvCity,
-                    tvCityTemperature,
-                    itemsRecycler,
+                    citiesPager,
                     tvEmptyCitiesMessage
                 )
             allViews.forEach(View::hide)
         }
-
     }
 }
 
