@@ -4,6 +4,7 @@ import com.elihimas.weather.data.model.Forecast
 import com.elihimas.weather.data.model.ForecastItem
 import com.elihimas.weather.data.model.LoadResult
 import com.elihimas.weather.data.model.Weather
+import com.elihimas.weather.data.repository.local.WeatherDatabase
 import com.elihimas.weather.data.repository.remote.WeatherAPI
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,7 +14,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 class WeatherRepositoryImpl(
-    private val api: WeatherAPI
+    private val api: WeatherAPI,
+    private val dao: WeatherDatabase
 ) : WeatherRepository {
 
     override fun loadForecast(city: String): Flow<Forecast> = flow {
@@ -38,6 +40,13 @@ class WeatherRepositoryImpl(
     }
 
     override fun loadWeather(city: String): Flow<LoadResult<Weather>> = flow {
+
+        val lastWeather = dao.loadWeatherByCity(city)
+
+        lastWeather?.let { lastWeather ->
+            emit(LoadResult.SuccessResult(lastWeather))
+        }
+
         try {
             val weatherResponse = api.getWeather(city.trim())
 
@@ -45,7 +54,10 @@ class WeatherRepositoryImpl(
                 val cityName = weatherResponse.cityName
                 val temperature = weatherResponse.mainWeatherData.temperature
 
-                emit(LoadResult.SuccessResult(Weather(cityName, temperature)))
+                val weather = Weather(cityName, temperature)
+                emit(LoadResult.SuccessResult(weather))
+
+                dao.saveWeather(weather)
             }
         } catch (e: Exception) {
             if (e is HttpException && e.code() == 404) {
